@@ -396,7 +396,7 @@
      PA flow → "When HTTP request received" trigger card
      (visible after saving) → copy the HTTP POST URL.
   ────────────────────────────────────────────────────────── */
-  var PA_ENDPOINT = "https://script.google.com/macros/s/AKfycbxfL6bEMrBieG-DevDVQOdSvJwz1217yX_ax2-JTknuxQikPDozAwEr0xG_hRGohubF/exec";
+  var PA_ENDPOINT = "https://script.google.com/macros/s/AKfycbzZ6PlIJjXZDJu6xx_DXt6sHk12f-O48YYxTt7GZR4LcZb3whgMAYzTEV9Evq6ZQ9_E/exec";
 
   /* ── State ─────────────────────────────────────────────── */
   var st = { school: null, reason: null, reasonLabel: null };
@@ -497,25 +497,19 @@
     };
 
     fetch(PA_ENDPOINT, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(payload)
-    })
-    .then(function(res) {
-      if (res.ok) {
-        showSuccess();
-      } else {
-        alert('There was a problem sending your message (error ' + res.status + '). Please try again or call the school directly.');
-        btn.disabled    = false;
-        btn.textContent = 'Send message';
-      }
-    })
-    .catch(function() {
-      alert('Network error \u2014 please check your connection and try again.');
-      btn.disabled    = false;
-      btn.textContent = 'Send message';
-    });
-  }
+  method:  'POST',
+  mode:    'no-cors',
+  headers: { 'Content-Type': 'application/json' },
+  body:    JSON.stringify(payload)
+})
+.then(function() {
+  showSuccess();
+})
+.catch(function() {
+  alert('Network error \u2014 please check your connection and try again.');
+  btn.disabled    = false;
+  btn.textContent = 'Send message';
+});
 
   /* ── Success screen ─────────────────────────────────────── */
   function showSuccess() {
