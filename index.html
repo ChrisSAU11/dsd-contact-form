@@ -217,12 +217,12 @@ function submitForm(){
     SENDER_PHONE:v('phone')||'not provided',
     MESSAGE:v('msg')
   };
-  fetch(GAS_ENDPOINT,{
-    method:'POST',
-    mode:'no-cors',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(payload)
-  })
+  fetch(GAS_ENDPOINT, {
+  method:  'POST',
+  mode:    'no-cors',
+  headers: { 'Content-Type': 'text/plain' },
+  body:    JSON.stringify(payload)
+})
   .then(function(){
     showSuccess();
   })
