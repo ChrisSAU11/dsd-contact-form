@@ -157,7 +157,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text)
 </div>
 
 <script>
-var GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbxAPXmWfXivLUDGtpMwW4CTteOn96F1TOQKSQGXCTA8ltrahhZg9Gya5CznXeU6_X92/exec";
+var GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbzixJgQ0ReU-QnCjnKNo0tgfAqQU8ewb8-sw_57UwM_n5fNNTzxaEuEPts_N4d6u1OP/exec";
 var st = { school:null, reason:null, reasonLabel:null };
 function v(id){ return document.getElementById(id).value.trim(); }
 function chk(name){ return document.querySelector('input[name="'+name+'"]:checked'); }
@@ -217,12 +217,10 @@ function submitForm(){
     SENDER_PHONE:v('phone')||'not provided',
     MESSAGE:v('msg')
   };
-  fetch(GAS_ENDPOINT, {
-  method:  'POST',
-  mode:    'no-cors',
-  headers: { 'Content-Type': 'text/plain' },
-  body:    JSON.stringify(payload)
-})
+  fetch(GAS_ENDPOINT+'?data='+encodeURIComponent(JSON.stringify(payload)),{
+    method:'GET',
+    mode:'no-cors'
+  })
   .then(function(){
     showSuccess();
   })
