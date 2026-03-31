@@ -157,12 +157,18 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text)
 </div>
 
 <script>
-var GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyucuORmGeM8HpVsGvPZcfm2-AzRv6ji2eAysaPmr8NbltgmI8lT23nfNuzQKlqZOyQ/exec";
+// ----------------------------------------------------------------
+// REPLACE THIS WITH YOUR GAS WEB APP URL
+// ----------------------------------------------------------------
+var GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycby0_NwPuVLCRu6rOnqZMvZCs8YoDHxgjkcaKmBm5NSVhDmWNjHa6SWNUf8iguXMta94/exec";
+// ----------------------------------------------------------------
+
 var st = { school:null, reason:null, reasonLabel:null };
 function v(id){ return document.getElementById(id).value.trim(); }
 function chk(name){ return document.querySelector('input[name="'+name+'"]:checked'); }
 function show(id){ document.getElementById(id).classList.add('on'); }
 function hide(id){ document.getElementById(id).classList.remove('on'); }
+
 function goTo(n){
   if(n===2){ var s=chk('SCHOOL'); if(!s){show('v-school');return;} hide('v-school'); st.school=s.value; }
   if(n===3){ var r=chk('REASON'); if(!r){show('v-reason');return;} hide('v-reason'); st.reason=r.value; st.reasonLabel=r.getAttribute('data-label'); }
@@ -180,6 +186,7 @@ function goTo(n){
   updateBar(n);
   document.querySelector('.shell').scrollIntoView({behavior:'smooth',block:'start'});
 }
+
 function updateBar(n){
   var ck='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
   [1,2,3,4].forEach(function(i){
@@ -189,6 +196,7 @@ function updateBar(n){
     else{d.className='dot';d.textContent=i;l.className='step-lbl';}
   });
 }
+
 function buildReview(){
   var fn=v('fname'),ln=v('lname'),em=v('email'),ph=v('phone'),mg=v('msg');
   var rows=[
@@ -202,34 +210,56 @@ function buildReview(){
   document.getElementById('revCard').innerHTML=rows.map(function(r){
     return '<div class="rev-row'+(r.hi?' hi':'')+'"><span class="rev-k">'+r.k+'</span><span class="rev-v'+(r.b?' b':'')+'">'+r.val+'</span></div>';
   }).join('');
-  document.getElementById('notice').textContent='Your message will be forwarded to the right staff member at '+st.school+' based on your reason for contact. Staff email addresses are never shared publicly - replies will come directly to '+em+'.';
+  document.getElementById('notice').textContent='Your message will be forwarded to the right staff member at '+st.school+' based on your reason for contact. Staff email addresses are never shared publicly - replies will come directly to '+v('email')+'.';
 }
+
 function submitForm(){
   var btn=document.getElementById('submitBtn');
   btn.disabled=true;
   btn.textContent='Sending...';
+
   var payload={
-    SCHOOL:st.school,
-    REASON:st.reason,
-    REASON_LABEL:st.reasonLabel,
-    SENDER_NAME:v('fname')+' '+v('lname'),
-    SENDER_EMAIL:v('email'),
-    SENDER_PHONE:v('phone')||'not provided',
-    MESSAGE:v('msg')
+    SCHOOL:       st.school,
+    REASON:       st.reason,
+    REASON_LABEL: st.reasonLabel,
+    SENDER_NAME:  v('fname')+' '+v('lname'),
+    SENDER_EMAIL: v('email'),
+    SENDER_PHONE: v('phone')||'not provided',
+    MESSAGE:      v('msg')
   };
-  fetch(GAS_ENDPOINT+'?data='+encodeURIComponent(JSON.stringify(payload)),{
-    method:'GET',
-    mode:'no-cors'
-  })
-  .then(function(){
-    showSuccess();
-  })
-  .catch(function(){
-    alert('Network error - please check your connection and try again.');
-    btn.disabled=false;
-    btn.textContent='Send message';
+
+  // Hidden iframe absorbs the GAS redirect response
+  var iframe=document.createElement('iframe');
+  iframe.name='dsd-target';
+  iframe.style.display='none';
+  document.body.appendChild(iframe);
+
+  // Hidden form posts each field as a named parameter
+  var form=document.createElement('form');
+  form.method='POST';
+  form.action=GAS_ENDPOINT;
+  form.target='dsd-target';
+  form.style.display='none';
+
+  Object.keys(payload).forEach(function(key){
+    var input=document.createElement('input');
+    input.type='hidden';
+    input.name=key;
+    input.value=payload[key];
+    form.appendChild(input);
   });
+
+  document.body.appendChild(form);
+  form.submit();
+
+  // Show success after 2s — GAS has received it by then
+  setTimeout(function(){
+    try{ document.body.removeChild(form); }catch(e){}
+    try{ document.body.removeChild(iframe); }catch(e){}
+    showSuccess();
+  }, 2000);
 }
+
 function showSuccess(){
   document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on');});
   document.getElementById('stepDone').classList.add('on');
