@@ -156,12 +156,63 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text)
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
 // ----------------------------------------------------------------
-// REPLACE THIS WITH YOUR GAS WEB APP URL
+// EmailJS configuration
 // ----------------------------------------------------------------
-var GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbx5-Pn9XnJQio80FR0LW290JVq-ih5OQr28mFNUNXQTqL4FWmD8mpaOU8Rq5w86WhI_/exec";
+var EJS_PUBLIC_KEY  = "0bxShcOKCSaueXV2i";
+var EJS_SERVICE_ID  = "xsLnhd1PzJv_kkjf5aJX0";
+var EJS_TEMPLATE_ID = "template_j5am7ae";
+
 // ----------------------------------------------------------------
+// Routing table — update staff emails here when staff changes
+// Format: ROUTING["School name"]["reason_id"] = "email@sau11.net"
+// ----------------------------------------------------------------
+var ROUTING = {
+  "Frank G. Horne School": {
+    "absence":              "c.jones@sau11.nh.gov",
+    "medical":              "c.jones@sau11.nh.gov",
+    "safety_discipline_mh": "c.jones@sau11.nh.gov",
+    "volunteering":         "c.jones@sau11.nh.gov",
+    "general":              "c.jones@sau11.nh.gov"
+  },
+  "Garrison Elementary": {
+    "absence":              "c.jones@sau11.nh.gov",
+    "medical":              "c.jones@sau11.nh.gov",
+    "safety_discipline_mh": "c.jones@sau11.nh.gov",
+    "volunteering":         "c.jones@sau11.nh.gov",
+    "general":              "c.jones@sau11.nh.gov"
+  },
+  "Woodman Park School": {
+    "absence":              "c.jones@sau11.nh.gov",
+    "medical":              "c.jones@sau11.nh.gov",
+    "safety_discipline_mh": "c.jones@sau11.nh.gov",
+    "volunteering":         "c.jones@sau11.nh.gov",
+    "general":              "c.jones@sau11.nh.gov"
+  },
+  "Dover Middle School": {
+    "absence":              "c.jones@sau11.nh.gov",
+    "medical":              "c.jones@sau11.nh.gov",
+    "safety_discipline_mh": "c.jones@sau11.nh.gov",
+    "volunteering":         "c.jones@sau11.nh.gov",
+    "general":              "c.jones@sau11.nh.gov"
+  },
+  "Dover High School": {
+    "absence":              "c.jones@sau11.nh.gov",
+    "medical":              "c.jones@sau11.nh.gov",
+    "safety_discipline_mh": "c.jones@sau11.nh.gov",
+    "volunteering":         "c.jones@sau11.nh.gov",
+    "general":              "c.jones@sau11.nh.gov"
+  }
+};
+
+// Fallback if no match found
+var FALLBACK_EMAIL = "c.jones@sau11.nh.gov";
+
+// ----------------------------------------------------------------
+
+emailjs.init(EJS_PUBLIC_KEY);
 
 var st = { school:null, reason:null, reasonLabel:null };
 function v(id){ return document.getElementById(id).value.trim(); }
@@ -210,7 +261,7 @@ function buildReview(){
   document.getElementById('revCard').innerHTML=rows.map(function(r){
     return '<div class="rev-row'+(r.hi?' hi':'')+'"><span class="rev-k">'+r.k+'</span><span class="rev-v'+(r.b?' b':'')+'">'+r.val+'</span></div>';
   }).join('');
-  document.getElementById('notice').textContent='Your message will be forwarded to the right staff member at '+st.school+' based on your reason for contact. Staff email addresses are never shared publicly - replies will come directly to '+v('email')+'.';
+  document.getElementById('notice').textContent='Your message will be forwarded to the right staff member at '+st.school+'. Staff email addresses are never shared publicly - replies will come directly to '+v('email')+'.';
 }
 
 function submitForm(){
@@ -218,46 +269,34 @@ function submitForm(){
   btn.disabled=true;
   btn.textContent='Sending...';
 
-  var payload={
-    SCHOOL:       st.school,
-    REASON:       st.reason,
-    REASON_LABEL: st.reasonLabel,
-    SENDER_NAME:  v('fname')+' '+v('lname'),
-    SENDER_EMAIL: v('email'),
-    SENDER_PHONE: v('phone')||'not provided',
-    MESSAGE:      v('msg')
+  // Look up the destination email from the routing table
+  var toEmail = FALLBACK_EMAIL;
+  var routedTo = 'School Office';
+  if(ROUTING[st.school] && ROUTING[st.school][st.reason]){
+    toEmail  = ROUTING[st.school][st.reason];
+    routedTo = st.reasonLabel + ' - ' + st.school;
+  }
+
+  var params = {
+    to_email:     toEmail,
+    school:       st.school,
+    reason_label: st.reasonLabel,
+    routed_to:    routedTo,
+    sender_name:  v('fname')+' '+v('lname'),
+    sender_email: v('email'),
+    sender_phone: v('phone')||'not provided',
+    message:      v('msg')
   };
 
-  // Hidden iframe absorbs the GAS redirect response
-  var iframe=document.createElement('iframe');
-  iframe.name='dsd-target';
-  iframe.style.display='none';
-  document.body.appendChild(iframe);
-
-  // Hidden form posts each field as a named parameter
-  var form=document.createElement('form');
-  form.method='POST';
-  form.action=GAS_ENDPOINT;
-  form.target='dsd-target';
-  form.style.display='none';
-
-  Object.keys(payload).forEach(function(key){
-    var input=document.createElement('input');
-    input.type='hidden';
-    input.name=key;
-    input.value=payload[key];
-    form.appendChild(input);
-  });
-
-  document.body.appendChild(form);
-  form.submit();
-
-  // Show success after 2s — GAS has received it by then
-  setTimeout(function(){
-    try{ document.body.removeChild(form); }catch(e){}
-    try{ document.body.removeChild(iframe); }catch(e){}
-    showSuccess();
-  }, 2000);
+  emailjs.send(EJS_SERVICE_ID, EJS_TEMPLATE_ID, params)
+    .then(function(){
+      showSuccess();
+    }, function(err){
+      console.error('EmailJS error:', err);
+      alert('There was a problem sending your message. Please try again or call the school directly.');
+      btn.disabled=false;
+      btn.textContent='Send message';
+    });
 }
 
 function showSuccess(){
