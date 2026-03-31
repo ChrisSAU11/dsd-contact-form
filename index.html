@@ -95,10 +95,10 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text)
     <div class="fg">
       <label class="fl">Which school are you contacting?<span class="req">*</span></label>
       <div class="school-grid">
-        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc0" value="FGH Horne Street"><label for="sc0"><span class="card-name">FGH Horne Street</span><span class="card-sub">Horne Street - K-4</span></label></div>
-        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc1" value="Garrison Elementary"><label for="sc1"><span class="card-name">Garrison Elementary</span><span class="card-sub">Grades K-4</span></label></div>
-        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc2" value="Woodman Park School"><label for="sc2"><span class="card-name">Woodman Park</span><span class="card-sub">Grades K-4</span></label></div>
-        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc3" value="Dover Middle School"><label for="sc3"><span class="card-name">Dover Middle School</span><span class="card-sub">Grades 5-8</span></label></div>
+        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc0" value="Frank G. Horne School"><label for="sc0"><span class="card-name">Frank G. Horne</span><span class="card-sub">Horne Street - K-5</span></label></div>
+        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc1" value="Garrison Elementary"><label for="sc1"><span class="card-name">Garrison Elementary</span><span class="card-sub">Grades K-5</span></label></div>
+        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc2" value="Woodman Park School"><label for="sc2"><span class="card-name">Woodman Park</span><span class="card-sub">Grades K-5</span></label></div>
+        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc3" value="Dover Middle School"><label for="sc3"><span class="card-name">Dover Middle School</span><span class="card-sub">Grades 6-8</span></label></div>
         <div class="card-opt"><input type="radio" name="SCHOOL" id="sc4" value="Dover High School"><label for="sc4"><span class="card-name">Dover High School</span><span class="card-sub">Grades 9-12</span></label></div>
       </div>
       <div class="vm" id="v-school">Please select a school.</div>
@@ -167,49 +167,40 @@ var EJS_TEMPLATE_ID       = "template_j5am7ae";
 var EJS_AUTOREPLY_TEMPLATE = "template_c6hqr1e";
 
 // ----------------------------------------------------------------
-// Routing table — update staff emails here when staff changes
-// Format: ROUTING["School name"]["reason_id"] = "email@sau11.net"
+// Routing — fetched live from Google Sheets CSV on page load
+// To update emails: edit the Sheet, no code changes needed
 // ----------------------------------------------------------------
-var ROUTING = {
-  "FGH Horne Street": {
-    "absence":              "c.jones@sau11.nh.gov",
-    "medical":              "c.jones@sau11.nh.gov",
-    "safety_discipline_mh": "c.jones@sau11.nh.gov",
-    "volunteering":         "c.jones@sau11.nh.gov",
-    "general":              "c.jones@sau11.nh.gov"
-  },
-  "Garrison Elementary": {
-    "absence":              "c.jones@sau11.nh.gov",
-    "medical":              "c.jones@sau11.nh.gov",
-    "safety_discipline_mh": "c.jones@sau11.nh.gov",
-    "volunteering":         "c.jones@sau11.nh.gov",
-    "general":              "c.jones@sau11.nh.gov"
-  },
-  "Woodman Park School": {
-    "absence":              "c.jones@sau11.nh.gov",
-    "medical":              "c.jones@sau11.nh.gov",
-    "safety_discipline_mh": "c.jones@sau11.nh.gov",
-    "volunteering":         "c.jones@sau11.nh.gov",
-    "general":              "c.jones@sau11.nh.gov"
-  },
-  "Dover Middle School": {
-    "absence":              "c.jones@sau11.nh.gov",
-    "medical":              "c.jones@sau11.nh.gov",
-    "safety_discipline_mh": "c.jones@sau11.nh.gov",
-    "volunteering":         "c.jones@sau11.nh.gov",
-    "general":              "c.jones@sau11.nh.gov"
-  },
-  "Dover High School": {
-    "absence":              "c.jones@sau11.nh.gov",
-    "medical":              "c.jones@sau11.nh.gov",
-    "safety_discipline_mh": "c.jones@sau11.nh.gov",
-    "volunteering":         "c.jones@sau11.nh.gov",
-    "general":              "c.jones@sau11.nh.gov"
-  }
-};
-
-// Fallback if no match found
+var ROUTING_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbUKW4ciZoirKGxCfgGXTKTNgGgvmyNEoGdhjq_S4XWjVsxIw_oTEwt_H5UtVryEfNJrzBgDniQAXP/pub?output=csv";
+var ROUTING = {};
 var FALLBACK_EMAIL = "c.jones@sau11.nh.gov";
+var routingLoaded = false;
+
+function loadRouting() {
+  fetch(ROUTING_CSV_URL)
+    .then(function(res){ return res.text(); })
+    .then(function(csv){
+      var lines = csv.trim().split('\n');
+      // Skip header row
+      for(var i = 1; i < lines.length; i++){
+        var cols = lines[i].split(',');
+        if(cols.length < 3) continue;
+        var school = cols[0].trim().replace(/^"|"$/g,'');
+        var reason = cols[1].trim().replace(/^"|"$/g,'');
+        var email  = cols[2].trim().replace(/^"|"$/g,'');
+        if(!ROUTING[school]) ROUTING[school] = {};
+        ROUTING[school][reason] = email;
+      }
+      routingLoaded = true;
+      console.log('Routing table loaded: ' + Object.keys(ROUTING).length + ' schools');
+    })
+    .catch(function(err){
+      console.error('Failed to load routing table:', err);
+      routingLoaded = true; // allow form to proceed, will use fallback
+    });
+}
+
+// Load routing table immediately on page load
+loadRouting();
 
 // ----------------------------------------------------------------
 
@@ -270,16 +261,21 @@ function submitForm(){
   btn.disabled=true;
   btn.textContent='Sending...';
 
-  // Look up the destination email from the routing table
-  var toEmail = FALLBACK_EMAIL;
+  // If routing table hasn't loaded yet, retry after 500ms
+  if(!routingLoaded){
+    setTimeout(function(){ btn.disabled=false; btn.textContent='Send message'; submitForm(); }, 500);
+    return;
+  }
+
+  // Look up destination email(s) from routing table
+  var toEmails = [FALLBACK_EMAIL];
   var routedTo = 'School Office';
   if(ROUTING[st.school] && ROUTING[st.school][st.reason]){
-    toEmail  = ROUTING[st.school][st.reason];
+    toEmails = ROUTING[st.school][st.reason].split(',').map(function(e){ return e.trim(); });
     routedTo = st.reasonLabel + ' - ' + st.school;
   }
 
-  var params = {
-    to_email:     toEmail,
+  var baseParams = {
     school:       st.school,
     reason_label: st.reasonLabel,
     routed_to:    routedTo,
@@ -289,14 +285,21 @@ function submitForm(){
     message:      v('msg')
   };
 
-  emailjs.send(EJS_SERVICE_ID, EJS_TEMPLATE_ID, params)
-    .then(function(){
-      // Send auto-reply to the form submitter
-      return emailjs.send(EJS_SERVICE_ID, EJS_AUTOREPLY_TEMPLATE, params);
-    })
+  // Send to each recipient (handles multiple addresses)
+  var sends = toEmails.map(function(email){
+    var params = Object.assign({}, baseParams, { to_email: email });
+    return emailjs.send(EJS_SERVICE_ID, EJS_TEMPLATE_ID, params);
+  });
+
+  // Also send auto-reply to the submitter
+  var autoReplyParams = Object.assign({}, baseParams, { to_email: v('email') });
+  sends.push(emailjs.send(EJS_SERVICE_ID, EJS_AUTOREPLY_TEMPLATE, autoReplyParams));
+
+  Promise.all(sends)
     .then(function(){
       showSuccess();
-    }, function(err){
+    })
+    .catch(function(err){
       console.error('EmailJS error:', err);
       alert('There was a problem sending your message. Please try again or call the school directly.');
       btn.disabled=false;
