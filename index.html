@@ -163,7 +163,8 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text)
 // ----------------------------------------------------------------
 var EJS_PUBLIC_KEY  = "0bxShcOKCSaueXV2i";
 var EJS_SERVICE_ID  = "service_v9bwg46";
-var EJS_TEMPLATE_ID = "template_j5am7ae";
+var EJS_TEMPLATE_ID       = "template_j5am7ae";
+var EJS_AUTOREPLY_TEMPLATE = "template_0mdur8w";
 
 // ----------------------------------------------------------------
 // Routing table — update staff emails here when staff changes
@@ -289,6 +290,10 @@ function submitForm(){
   };
 
   emailjs.send(EJS_SERVICE_ID, EJS_TEMPLATE_ID, params)
+    .then(function(){
+      // Send auto-reply to the form submitter
+      return emailjs.send(EJS_SERVICE_ID, EJS_AUTOREPLY_TEMPLATE, params);
+    })
     .then(function(){
       showSuccess();
     }, function(err){
