@@ -6,7 +6,7 @@
 <title>Contact Your School - Dover School District</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--blue:#1a3a6b;--blue-lt:#eef2f8;--blue-mid:#b5c8e4;--text:#1a1a1a;--muted:#5f6368;--hint:#9aa0a6;--border:#dadce0;--bg:#ffffff;--bg-soft:#f8f9fa;--red:#b33;--r:8px;--rl:12px}
+:root{--blue:#1a3a6b;--blue-lt:#eef2f8;--blue-mid:#b5c8e4;--text:#1a1a1a;--muted:#5f6368;--hint:#9aa0a6;--border:#dadce0;--bg:#ffffff;--bg-soft:#f8f9fa;--red:#b33;--amber:#7a4f00;--amber-bg:#fff8e6;--amber-border:#f0c040;--r:8px;--rl:12px}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text);background:transparent;-webkit-font-smoothing:antialiased}
 .shell{max-width:580px;margin:0 auto;padding:0 4px 40px}
 .hdr{border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:24px}
@@ -40,6 +40,9 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text)
 .re-opt label{display:flex;align-items:center;gap:12px;border:1.5px solid var(--border);border-radius:var(--r);padding:11px 13px;cursor:pointer;transition:all .15s;background:var(--bg);user-select:none}
 .re-opt label:hover{border-color:var(--blue-mid);background:#f4f7fc}
 .re-opt input:checked+label{border-color:var(--blue);border-width:2px;background:var(--blue-lt)}
+/* Disabled absence option for elementary schools */
+.re-opt.disabled label{cursor:default;opacity:.45;pointer-events:none}
+.re-opt.disabled label:hover{border-color:var(--border);background:var(--bg)}
 .re-icon{width:36px;height:36px;border-radius:7px;background:var(--bg-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .re-opt input:checked+label .re-icon{background:#dce6f5;border-color:var(--blue-mid)}
 .re-icon svg{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
@@ -47,6 +50,12 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text)
 .re-name{font-size:14px;font-weight:600;color:var(--text);display:block}
 .re-opt input:checked+label .re-name{color:var(--blue)}
 .re-desc{font-size:12px;color:var(--hint);margin-top:2px;line-height:1.4;display:block}
+/* Call notice banner */
+.call-notice{display:none;align-items:flex-start;gap:10px;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:var(--r);padding:11px 13px;margin-bottom:7px}
+.call-notice.on{display:flex}
+.call-notice svg{width:16px;height:16px;flex-shrink:0;margin-top:1px;stroke:var(--amber);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.call-notice-text{font-size:13px;color:var(--amber);line-height:1.5}
+.call-notice-text strong{font-weight:600}
 .ti,.ta{width:100%;border:1.5px solid var(--border);border-radius:var(--r);padding:9px 12px;font-size:14px;font-family:inherit;color:var(--text);background:var(--bg);outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
 .ti:focus,.ta:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,58,107,.1)}
 .ta{resize:vertical;line-height:1.6;min-height:90px}
@@ -95,11 +104,11 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text)
     <div class="fg">
       <label class="fl">Which school are you contacting?<span class="req">*</span></label>
       <div class="school-grid">
-        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc0" value="FGH Horne Street"><label for="sc0"><span class="card-name">Frank G. Horne</span><span class="card-sub">Horne Street - K-4</span></label></div>
-        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc1" value="Garrison Elementary"><label for="sc1"><span class="card-name">Garrison Elementary</span><span class="card-sub">Grades K-4</span></label></div>
-        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc2" value="Woodman Park School"><label for="sc2"><span class="card-name">Woodman Park</span><span class="card-sub">Grades K-4</span></label></div>
-        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc3" value="Dover Middle School"><label for="sc3"><span class="card-name">Dover Middle School</span><span class="card-sub">Grades 5-8</span></label></div>
-        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc4" value="Dover High School"><label for="sc4"><span class="card-name">Dover High School</span><span class="card-sub">Grades 9-12</span></label></div>
+        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc0" value="FGH Horne Street" data-elem="true"><label for="sc0"><span class="card-name">FGH Horne Street</span><span class="card-sub">Grades K–4</span></label></div>
+        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc1" value="Garrison Elementary" data-elem="true"><label for="sc1"><span class="card-name">Garrison Elementary</span><span class="card-sub">Grades K–4</span></label></div>
+        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc2" value="Woodman Park School" data-elem="true"><label for="sc2"><span class="card-name">Woodman Park</span><span class="card-sub">Grades K–4</span></label></div>
+        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc3" value="Dover Middle School"><label for="sc3"><span class="card-name">Dover Middle School</span><span class="card-sub">Grades 5–8</span></label></div>
+        <div class="card-opt"><input type="radio" name="SCHOOL" id="sc4" value="Dover High School"><label for="sc4"><span class="card-name">Dover High School</span><span class="card-sub">Grades 9–12</span></label></div>
       </div>
       <div class="vm" id="v-school">Please select a school.</div>
     </div>
@@ -110,7 +119,12 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--text)
     <div class="fg">
       <label class="fl">What is the reason for your message?<span class="req">*</span></label>
       <div class="reason-list">
-        <div class="re-opt"><input type="radio" name="REASON" id="re0" value="absence" data-label="Absence"><label for="re0"><div class="re-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div><span class="re-name">Absence</span><span class="re-desc">Reporting your child absent, late, or leaving early</span></div></label></div>
+        <!-- Call notice shown for elementary schools -->
+        <div class="call-notice" id="callNotice">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 3.09 4.18 2 2 0 0 1 5.06 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L9.09 9.91a16 16 0 0 0 5.61 5.61l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          <span class="call-notice-text"><strong>To report an absence, please call <span id="callSchoolName">the school</span> directly.</strong> Elementary school attendance must be reported by phone.</span>
+        </div>
+        <div class="re-opt" id="absenceOpt"><input type="radio" name="REASON" id="re0" value="absence" data-label="Absence"><label for="re0"><div class="re-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div><span class="re-name">Absence</span><span class="re-desc">Reporting your child absent, late, or leaving early</span></div></label></div>
         <div class="re-opt"><input type="radio" name="REASON" id="re1" value="medical" data-label="Medical"><label for="re1"><div class="re-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div><span class="re-name">Medical</span><span class="re-desc">Health concerns, medications, allergies, or injuries</span></div></label></div>
         <div class="re-opt"><input type="radio" name="REASON" id="re2" value="safety_discipline_mh" data-label="Safety, Disciplinary, or Mental Health"><label for="re2"><div class="re-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div><span class="re-name">Safety, Disciplinary, or Mental Health</span><span class="re-desc">Bullying, behavior concerns, or student wellbeing</span></div></label></div>
         <div class="re-opt"><input type="radio" name="REASON" id="re3" value="volunteering" data-label="Volunteering"><label for="re3"><div class="re-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 11v6M20 14h6"/></svg></div><div><span class="re-name">Volunteering</span><span class="re-desc">Field trips, classroom help, or school events</span></div></label></div>
@@ -168,7 +182,6 @@ var EJS_AUTOREPLY_TEMPLATE = "template_c6hqr1e";
 
 // ----------------------------------------------------------------
 // Routing — fetched live from Google Sheets CSV on page load
-// To update emails: edit the Sheet, no code changes needed
 // ----------------------------------------------------------------
 var ROUTING_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSbUKW4ciZoirKGxCfgGXTKTNgGgvmyNEoGdhjq_S4XWjVsxIw_oTEwt_H5UtVryEfNJrzBgDniQAXP/pub?output=csv";
 var ROUTING = {};
@@ -180,7 +193,6 @@ function loadRouting() {
     .then(function(res){ return res.text(); })
     .then(function(csv){
       var lines = csv.trim().split('\n');
-      // Skip header row
       for(var i = 1; i < lines.length; i++){
         var cols = lines[i].split(',');
         if(cols.length < 3) continue;
@@ -195,11 +207,10 @@ function loadRouting() {
     })
     .catch(function(err){
       console.error('Failed to load routing table:', err);
-      routingLoaded = true; // allow form to proceed, will use fallback
+      routingLoaded = true;
     });
 }
 
-// Load routing table immediately on page load
 loadRouting();
 
 // ----------------------------------------------------------------
@@ -212,9 +223,45 @@ function chk(name){ return document.querySelector('input[name="'+name+'"]:checke
 function show(id){ document.getElementById(id).classList.add('on'); }
 function hide(id){ document.getElementById(id).classList.remove('on'); }
 
+function isElemSchool() {
+  var s = chk('SCHOOL');
+  return s && s.getAttribute('data-elem') === 'true';
+}
+
+function applyElemRestriction(elem) {
+  var absOpt = document.getElementById('absenceOpt');
+  var callNotice = document.getElementById('callNotice');
+  var callSchoolName = document.getElementById('callSchoolName');
+  var absRadio = document.getElementById('re0');
+
+  if (elem) {
+    absOpt.classList.add('disabled');
+    callNotice.classList.add('on');
+    callSchoolName.textContent = st.school;
+    // Clear absence selection if it was previously chosen
+    if (absRadio.checked) { absRadio.checked = false; }
+  } else {
+    absOpt.classList.remove('disabled');
+    callNotice.classList.remove('on');
+  }
+}
+
 function goTo(n){
-  if(n===2){ var s=chk('SCHOOL'); if(!s){show('v-school');return;} hide('v-school'); st.school=s.value; }
-  if(n===3){ var r=chk('REASON'); if(!r){show('v-reason');return;} hide('v-reason'); st.reason=r.value; st.reasonLabel=r.getAttribute('data-label'); }
+  if(n===2){
+    var s=chk('SCHOOL');
+    if(!s){show('v-school');return;}
+    hide('v-school');
+    st.school=s.value;
+    // Apply or remove elementary restriction when landing on step 2
+    applyElemRestriction(isElemSchool());
+  }
+  if(n===3){
+    var r=chk('REASON');
+    if(!r){show('v-reason');return;}
+    hide('v-reason');
+    st.reason=r.value;
+    st.reasonLabel=r.getAttribute('data-label');
+  }
   if(n===4){
     var fn=v('fname'),ln=v('lname'),em=v('email'),mg=v('msg'),ok=true;
     if(!fn){show('v-fn');ok=false;}else hide('v-fn');
@@ -261,13 +308,11 @@ function submitForm(){
   btn.disabled=true;
   btn.textContent='Sending...';
 
-  // If routing table hasn't loaded yet, retry after 500ms
   if(!routingLoaded){
     setTimeout(function(){ btn.disabled=false; btn.textContent='Send message'; submitForm(); }, 500);
     return;
   }
 
-  // Look up destination email(s) from routing table
   var toEmails = [FALLBACK_EMAIL];
   var routedTo = 'School Office';
   if(ROUTING[st.school] && ROUTING[st.school][st.reason]){
@@ -285,13 +330,11 @@ function submitForm(){
     message:      v('msg')
   };
 
-  // Send to each recipient (handles multiple addresses)
   var sends = toEmails.map(function(email){
     var params = Object.assign({}, baseParams, { to_email: email });
     return emailjs.send(EJS_SERVICE_ID, EJS_TEMPLATE_ID, params);
   });
 
-  // Also send auto-reply to the submitter
   var autoReplyParams = Object.assign({}, baseParams, { to_email: v('email') });
   sends.push(emailjs.send(EJS_SERVICE_ID, EJS_AUTOREPLY_TEMPLATE, autoReplyParams));
 
